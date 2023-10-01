@@ -15,5 +15,15 @@ public class User {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
     private String name;
+
+    public User()
+	{
+	}
+
+	public User(Integer id, String name)
+	{
+		this.id = id;
+		this.name = name;
+	}
     
 }

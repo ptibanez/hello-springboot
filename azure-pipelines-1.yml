@@ -32,8 +32,7 @@ stages:
     steps:
     - task: Maven@3
       displayName: 'Maven Package'
-      jdkVersion: 17
-      mavenVersionSelection: 3.11.0
+      jdkVersion: 1.17
       inputs:
         mavenPomFile: 'code/pom.xml'
 

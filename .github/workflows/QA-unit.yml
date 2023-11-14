@@ -41,3 +41,31 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
+#      - name: Check where config_test is
+#        id: check-where-config-test-is
+#        env:
+#          CONFIG_TEST_FILE: code/src/test/resources/config_test.yml
+#        run: |
+#          if [[ -f "${CONFIG_TEST_FILE}" ]]; then
+#            echo "config-test-directory=${CONFIG_TEST_FILE}" >> "$GITHUB_OUTPUT"
+#          elif [[ -f "code/config_test/config_test.yml" ]]; then
+#            echo "config-test-directory=code/config_test/config_test.yml" >> "$GITHUB_OUTPUT"
+#          else
+#            echo "config_test.yml file not found"
+#          fi          
+      - name: Store project version
+        id: pom-data
+        run: |
+          echo "app-version=$(xmllint --xpath "/*[name()='project']/*[name()='version']/text()" code/pom.xml)" >> "$GITHUB_OUTPUT"
+          
+      - name: Run unit tests with release event
+        if: github.event_name == 'release'
+        working-directory: code
+        run: |
+            mvn -B clean verify -DskipEnforceSnapshots -Djacoco.skip=false -Damiga.jacoco -DskipITs -DfailIfNoTests=false -Dmaven.test.failure.ignore=false
+      - name: Run unit tests
+        if: github.event_name != 'release'
+        working-directory: code
+        run: |
+          mvn -B clean verify -Djacoco.skip=false -Damiga.jacoco -DskipITs -DfailIfNoTests=false -Dmaven.test.failure.ignore=false
+          

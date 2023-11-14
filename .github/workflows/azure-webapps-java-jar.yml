@@ -25,8 +25,8 @@ env:
   DISTRIBUTION: zulu                  # set this to the Java distribution
 
 on:
-  push:
-    branches: [ "develop" ]
+  #push:
+  #  branches: [ "develop" ]
   workflow_dispatch:
 
 permissions:

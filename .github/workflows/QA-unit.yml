@@ -57,7 +57,12 @@ jobs:
         id: pom-data
         run: |
           echo "app-version=$(xmllint --xpath "/*[name()='project']/*[name()='version']/text()" code/pom.xml)" >> "$GITHUB_OUTPUT"
-          
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven          
       - name: Run unit tests with release event
         if: github.event_name == 'release'
         working-directory: code

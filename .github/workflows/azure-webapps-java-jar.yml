@@ -47,13 +47,13 @@ jobs:
           cache: 'maven'
 
       - name: Build with Maven
-        run: mvn clean install
+        run: mvn clean install -f code/pom.xml
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v3
         with:
           name: java-app
-          path: '${{ github.workspace }}/target/*.jar'
+          path: '${{ github.workspace }}/code/target/*.jar'
 
   deploy:
     permissions:

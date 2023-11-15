@@ -8,6 +8,10 @@
 ---
 name: code-maven-build-snapshot
 
+concurrency:
+  group: code-build-snapshot
+  cancel-in-progress: true
+
 on:
   push:
     branches: ['develop', 'develop-*', 'main', 'main-*']
@@ -17,6 +21,7 @@ jobs:
   build-snapshot:
     name: Build Snapshot
     runs-on: ubuntu-latest
+    if: ${{ (vars.DEVELOPMENT_FLOW == 'trunk-based-development' && github.ref_name == 'main') || (vars.DEVELOPMENT_FLOW != 'trunk-based-development' && github.ref_name == 'develop') }}
     steps:
     - name: Checkout Branch Head
       uses: actions/checkout@v3

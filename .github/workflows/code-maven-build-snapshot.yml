@@ -27,7 +27,7 @@ jobs:
         distribution: 'temurin'
         cache: maven
     - name: Build & Deploy Snapshots
-      run: mvn -B clean deploy -DskipTests -DskipUTs -DskipITs -Dbuild.type=snapshot --file code/pom.xml
+      run: mvn -B clean deploy -DskipTests -DskipUTs -DskipITs -Dbuild.type=snapshot --file code/pom.xml --settings code/settings.xml
 
     # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive
     #- name: Update dependency graph

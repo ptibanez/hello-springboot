@@ -8,14 +8,10 @@ concurrency:
 
 on:
   workflow_dispatch:
-    inputs:
-      ATTACH_TARGET:
-        description: Target platform to upload the generated report, it does not export results if empty. (p.e. jfrog)
-        required: false
   pull_request:
     types: [closed]
-    branches: ['develop', 'develop-*', 'main', 'main-*']
-    paths: ['code/**', '.github/workflows/QA_unit.yml']
+    branches: [develop, main]
+    paths: ['code/**', '.github/workflows/code-*-QA_unit.yml']
   release:
     types:
       - published
@@ -41,18 +37,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-#      - name: Check where config_test is
-#        id: check-where-config-test-is
-#        env:
-#          CONFIG_TEST_FILE: code/src/test/resources/config_test.yml
-#        run: |
-#          if [[ -f "${CONFIG_TEST_FILE}" ]]; then
-#            echo "config-test-directory=${CONFIG_TEST_FILE}" >> "$GITHUB_OUTPUT"
-#          elif [[ -f "code/config_test/config_test.yml" ]]; then
-#            echo "config-test-directory=code/config_test/config_test.yml" >> "$GITHUB_OUTPUT"
-#          else
-#            echo "config_test.yml file not found"
-#          fi          
+        
       - name: Store project version
         id: pom-data
         run: |
@@ -67,10 +52,20 @@ jobs:
         if: github.event_name == 'release'
         working-directory: code
         run: |
-            mvn -B clean verify -DskipEnforceSnapshots -Djacoco.skip=false -Damiga.jacoco -DskipITs -DfailIfNoTests=false -Dmaven.test.failure.ignore=false
+            mvn -B clean verify -DskipEnforceSnapshots -Djacoco.skip=false -Damiga.jacoco -DskipITs -DfailIfNoTests=false -Dmaven.test.failure.ignore=false -
       - name: Run unit tests
         if: github.event_name != 'release'
         working-directory: code
         run: |
-          mvn -B clean verify -Djacoco.skip=false -Damiga.jacoco -DskipITs -DfailIfNoTests=false -Dmaven.test.failure.ignore=false
+          mvn -B clean verify -Djacoco.skip=false -Damiga.jacoco -DskipITs -DfailIfNoTests=false -Dmaven.test.failure.ignore=false 
+
+      - name: Sonar / Disable project-specific properties
+        working-directory: ${{ github.workspace }}/code
+        run: |
+          find ./ -name pom.xml -exec sed -i 's/sonar./disabled./g' {} +          
           
+      - name: Sonar / Configure input parameters
+        working-directory: ${{ github.workspace }}/code
+        run: |
+          if [[ -f './jacoco-report-aggregate/pom.xml' ]]; then JACOCO_PARAM="-pl !jacoco-report-aggregate -Dsonar.skip=false"; else JACOCO_PARAM="-Dsonar.skip=false"; fi; \
+          echo "JACOCO_SONAR_PARAM=$JACOCO_PARAM" >> "$GITHUB_ENV"

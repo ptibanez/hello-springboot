@@ -8,6 +8,10 @@
 ---
 name: code-maven-build-snapshot
 
+concurrency:
+  group: code-build-snapshot
+  cancel-in-progress: true
+
 on:
   push:
     branches: ['develop', 'develop-*', 'main', 'main-*']
@@ -17,6 +21,7 @@ jobs:
   build-snapshot:
     name: Build Snapshot
     runs-on: ubuntu-latest
+    if: ${{ (vars.DEVELOPMENT_FLOW == 'trunk-based-development' && github.ref_name == 'main') || (vars.DEVELOPMENT_FLOW != 'trunk-based-development' && github.ref_name == 'develop') }}
     steps:
     - name: Checkout Branch Head
       uses: actions/checkout@v3
@@ -26,8 +31,14 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
         cache: maven
+        server-id: pedtomiba
+        server-username: MAVEN_USERNAME
+        server-password: MAVEN_PASSWORD
     - name: Build & Deploy Snapshots
-      run: mvn -B clean deploy -DskipTests -DskipUTs -DskipITs -Dbuild.type=snapshot --file code/pom.xml
+      run: mvn -B clean deploy -DskipTests -DskipUTs -DskipITs -Dbuild.type=snapshot --file code/pom.xml 
+      env:
+        MAVEN_USERNAME: ${{ secrets.PEDTOMIBA_USERNAME }}
+        MAVEN_PASSWORD: ${{ secrets.PEDTOMIBA_TOKEN }}
 
     # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive
     #- name: Update dependency graph

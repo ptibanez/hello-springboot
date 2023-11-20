@@ -1,7 +1,6 @@
-package com.apress.demo.repositories;
+package com.apress.demo.infraestructure.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import com.apress.demo.domain.User;
 
 public interface UserRepository extends JpaRepository<User, Integer>{
     

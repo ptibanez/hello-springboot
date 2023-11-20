@@ -1,4 +1,4 @@
-package com.apress.demo.domain;
+package com.apress.demo.infraestructure.repository;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;

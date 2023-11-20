@@ -1,24 +1,31 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>3.1.2</version>
-		<relativePath /> <!-- lookup parent from repository -->
+		<relativePath/>
+		<!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.apress</groupId>
 	<artifactId>hello-springboot</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>hello-springboot</name>
+	<name>${project.groupId}:${project.artifactId}</name>
 	<description>Demo project for Spring Boot</description>
-
+	<packaging>pom</packaging>
+	<modules>
+		<module>jacoco-report-aggregate</module>
+		<module>hello-springboot-boot</module>
+		<module>hello-springboot-domain</module>
+		<module>hello-springboot-infraestructure</module>
+	</modules>
 	<distributionManagement>
 		<repository>
 			<id>pedtomiba</id>
-			<url>
-				https://pkgs.dev.azure.com/pedtomiba/_packaging/pedtomiba/maven/v1</url>
+			<url>https://pkgs.dev.azure.com/pedtomiba/_packaging/pedtomiba/maven/v1</url>
 			<releases>
 				<enabled>true</enabled>
 			</releases>
@@ -27,86 +34,230 @@
 			</snapshots>
 		</repository>
 	</distributionManagement>
+	<scm>
+		<connection>scm:git:https://github.com/ptibanez/hello-springboot.git</connection>
+		<developerConnection>scm:git:https://github.com/ptibanez/hello-springboot.git</developerConnection>
+		<url>https://github.com/ptibanez/hello-springboot</url>
+		<tag>HEAD</tag>
+	</scm>
 	<properties>
 		<java.version>17</java.version>
+		<lombok.version>1.18.28</lombok.version>
+		<springboot.version>3.1.2</springboot.version>
+		<mysql.version>8.2.0</mysql.version>
+		<h2.version>2.2.224</h2.version>
 	</properties>
-	<dependencies>
-
-		<dependency>
-			<groupId>org.projectlombok</groupId>
-			<artifactId>lombok</artifactId>
-			<version>1.18.28</version>
-		</dependency>
-
-
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-actuator</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-data-jpa</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-web</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-thymeleaf</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-devtools</artifactId>
-			<scope>runtime</scope>
-			<optional>true</optional>
-		</dependency>
-		<dependency>
-			<groupId>com.h2database</groupId>
-			<artifactId>h2</artifactId>
-			<scope>runtime</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.mysql</groupId>
-			<artifactId>mysql-connector-j</artifactId>
-			<scope>runtime</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-test</artifactId>
-			<scope>test</scope>
-		</dependency>
-	
- </dependencies>
-
-	<build>
-		<plugins>
-			<plugin>
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>${project.groupId}</groupId>
+				<artifactId>hello-springboot-boot</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>${project.groupId}</groupId>
+				<artifactId>hello-springboot-domain</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>${project.groupId}</groupId>
+				<artifactId>hello-springboot-infraestructure</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.projectlombok</groupId>
+				<artifactId>lombok</artifactId>
+				<version>${lombok.version}</version>
+			</dependency>
+			<dependency>
 				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
-			</plugin>
+				<artifactId>spring-boot-starter</artifactId>
+				<version>${springboot.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-starter-actuator</artifactId>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-starter-data-jpa</artifactId>
+				<version>${springboot.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-starter-web</artifactId>
+				<version>${springboot.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-starter-thymeleaf</artifactId>
+				<version>${springboot.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-devtools</artifactId>
+				<version>${springboot.version}</version>
+				<scope>runtime</scope>
+				<optional>true</optional>
+			</dependency>
+			<dependency>
+				<groupId>com.h2database</groupId>
+				<artifactId>h2</artifactId>
+				<version>${h2.version}</version>
+				<scope>runtime</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.mysql</groupId>
+				<artifactId>mysql-connector-j</artifactId>
+				<version>${mysql.version}</version>
+				<scope>runtime</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-starter-test</artifactId>
+				<version>${springboot.version}</version>				
+				<scope>test</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-release-plugin</artifactId>
+					<version>3.0.0</version>
+					<dependencies>
+						<dependency>
+							<groupId>com.inditex.maven.release</groupId>
+							<artifactId>maven-release-strategies</artifactId>
+							<version>0.7.1</version>
+						</dependency>
+						<dependency>
+							<groupId>org.apache.maven.release</groupId>
+							<artifactId>maven-release-semver-policy</artifactId>
+							<version>3.0.0</version>
+						</dependency>
+					</dependencies>
+					<configuration>
+						<arguments>-Dbuild.type=release -DskipEnforceSnapshots -DskipITs -DskipTests -DskipUTs</arguments>
+						<goals>deploy</goals>
+						<projectVersionPolicyId>SemVerVersionPolicy</projectVersionPolicyId>
+						<releaseStrategyId>GithubReleaseStrategy</releaseStrategyId>
+						<scmReleaseCommitComment>@{prefix} Prepare release @{releaseLabel}</scmReleaseCommitComment>
+						<scmDevelopmentCommitComment>@{prefix} Prepare for next development iteration</scmDevelopmentCommitComment>
+						<tagNameFormat>@{project.version}</tagNameFormat>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.pitest</groupId>
+					<artifactId>pitest-maven</artifactId>
+					<version>1.6.4</version>
+					<dependencies>
+						<dependency>
+							<groupId>org.pitest</groupId>
+							<artifactId>pitest-junit5-plugin</artifactId>
+							<version>0.14</version>
+						</dependency>
+					</dependencies>
+					<configuration>
+						<!--The number of threads to use when mutation testing. By default a single thread
+							will be used. -->
+						<threads>4</threads>
+						<timeoutFactor>3.0</timeoutFactor>
+						<timeoutConstant>60000</timeoutConstant>
+						<outputFormats>
+							<outputFormat>XML</outputFormat>
+							<outputFormat>HTML</outputFormat>
+							<!--OPTIONAL -->
+							<outputFormat>CSV</outputFormat>
+							<!--OPTIONAL -->
+						</outputFormats>
+						<exportLineCoverage>true</exportLineCoverage>
+						<failWhenNoMutations>false</failWhenNoMutations>
+						<timestampedReports>false</timestampedReports>
+						<excludedTestClasses>
+							<param>com.apress.demo.**.*IT</param>
+						</excludedTestClasses>
+						<targetClasses>
+							<param>com.apress.demo.*</param>
+						</targetClasses>
+						<excludedClasses>
+							<param>**.*DTO</param>
+							<param>**.*DTO$*</param>
+							<!--needed if inner class -->
+							<param>**.*dto</param>
+							<param>**.*Dto</param>
+							<param>**.*VO</param>
+							<param>**.*vo</param>
+							<param>**.*Vo</param>
+							<param>**.dto.*</param>
+							<param>**.*Api</param>
+							<param>**.rest.client.*</param>
+							<param>**.model.entity.*</param>
+							<param>**.model.entity.id.*</param>
+							<param>**.config.*Configuration</param>
+							<param>**.*MapperImpl</param>
+						</excludedClasses>
+						<verbose>false</verbose>
+						<!--OPTIONAL -->
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+		<plugins>
+
 			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
 				<version>0.8.11</version>
 				<executions>
 					<execution>
-						<id>prepare-agent</id>
 						<goals>
 							<goal>prepare-agent</goal>
 						</goals>
 					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-enforcer-plugin</artifactId>
+				<executions>
 					<execution>
-						<id>report</id>
-						<phase>test</phase>
+						<id>enforce-versions</id>
+						<phase>validate</phase>
 						<goals>
-							<goal>report</goal>
+							<goal>enforce</goal>
 						</goals>
+						<configuration>
+							<rules>
+								<requireMavenVersion>
+									<version>[3.9.4]</version>
+								</requireMavenVersion>
+								<requireJavaVersion>
+									<version>[17.0.9]</version>
+								</requireJavaVersion>
+							</rules>
+						</configuration>
 					</execution>
-				</executions>				
-			</plugin>			
+					<execution>
+						<id>enforce-snapshots</id>
+						<phase>validate</phase>
+						<goals>
+							<goal>enforce</goal>
+						</goals>
+						<configuration>
+							<skip>${skipEnforceSnapshots}</skip>
+							<rules>
+								<requireSnapshotVersion>
+									<failWhenParentIsRelease>false</failWhenParentIsRelease>
+									<message>Final versions not allowed</message>
+								</requireSnapshotVersion>
+							</rules>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
-
 </project>

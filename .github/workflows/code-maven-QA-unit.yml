@@ -8,9 +8,13 @@ concurrency:
 
 on:
   workflow_dispatch:
+    inputs:
+      ATTACH_TARGET:
+        description: Target platform to upload the generated report, it does not export results if empty. (e.g. azure)
+        required: false
   pull_request:
     types: [closed]
-    branches: [develop, main]
+    branches: ['develop', 'develop-*', 'main', 'main-*']
     paths: ['code/**', '.github/workflows/code-*-QA_unit.yml']
   release:
     types:
@@ -42,22 +46,26 @@ jobs:
         id: pom-data
         run: |
           echo "app-version=$(xmllint --xpath "/*[name()='project']/*[name()='version']/text()" code/pom.xml)" >> "$GITHUB_OUTPUT"
-      - name: Set up JDK 17
+      - name: Set up JDK
         uses: actions/setup-java@v3
         with:
           java-version: '17'
           distribution: 'temurin'
-          cache: maven          
+          cache: maven
+      - name: Set up Maven
+        uses: stCarolas/setup-maven@v.4.5
+        with:
+          maven-version: 3.9.4
       - name: Run unit tests with release event
         if: github.event_name == 'release'
         working-directory: code
         run: |
-            mvn -B clean verify -DskipEnforceSnapshots -Djacoco.skip=false -Damiga.jacoco -DskipITs -DfailIfNoTests=false -Dmaven.test.failure.ignore=false -
+           mvn -B clean verify -DskipEnforceSnapshots -Djacoco.skip=false -DskipITs -DfailIfNoTests=false -Dmaven.test.failure.ignore=false
       - name: Run unit tests
         if: github.event_name != 'release'
         working-directory: code
         run: |
-          mvn -B clean verify -Djacoco.skip=false -Damiga.jacoco -DskipITs -DfailIfNoTests=false -Dmaven.test.failure.ignore=false 
+           mvn -B clean verify -Djacoco.skip=false -DskipITs -DfailIfNoTests=false -Dmaven.test.failure.ignore=false 
 
       - name: Sonar / Disable project-specific properties
         working-directory: ${{ github.workspace }}/code
@@ -69,3 +77,40 @@ jobs:
         run: |
           if [[ -f './jacoco-report-aggregate/pom.xml' ]]; then JACOCO_PARAM="-pl !jacoco-report-aggregate -Dsonar.skip=false"; else JACOCO_PARAM="-Dsonar.skip=false"; fi; \
           echo "JACOCO_SONAR_PARAM=$JACOCO_PARAM" >> "$GITHUB_ENV"
+
+      - name: SonarCloud / Run Maven Sonar goal with release event
+        env:
+          LOGIN: ${{ secrets.SONARCLOUD_TOKEN }}
+          SONAR_SCANNER_OPTS: ''
+        if: ${{ github.event_name == 'release' }}
+        working-directory: code
+        run: |
+          JACOCO_REPORT_PATH="$GITHUB_WORKSPACE/code/jacoco-report-aggregate/target/site/jacoco-aggregate/jacoco.xml"
+          mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+            -Dsonar.projectKey=ptibanez_"${{ fromJSON(steps.config.outputs.config).metadata.project_key }}" \
+            -Dsonar.projectName="${{ fromJSON(steps.config.outputs.config).metadata.project_name }}" \
+            -Dsonar.projectVersion="${{ github.event.release.tag_name }}" \
+            -Dsonar.branch.name="release/${{ github.event.release.tag_name }}" \
+            -Dsonar.host.url="https://sonarcloud.io/" \
+            -Dsonar.organization=ptibanez \
+            -Dsonar.login="${LOGIN}" \
+            -Dsonar.coverage.jacoco.xmlReportPaths="$JACOCO_REPORT_PATH"
+
+      - name: SonarCloud / Run Maven Sonar goal
+        env:
+          LOGIN: ${{ secrets.SONARCLOUD_TOKEN }}
+          SONAR_SCANNER_OPTS: ''
+        if: ${{ github.event_name != 'release' }}
+        working-directory: code
+        run: |
+          JACOCO_REPORT_PATH="$GITHUB_WORKSPACE/code/jacoco-report-aggregate/target/site/jacoco-aggregate/jacoco.xml"
+          mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+            -Dsonar.projectKey=ptibanez_"${{ fromJSON(steps.config.outputs.config).metadata.project_key }}" \
+            -Dsonar.projectName="${{ fromJSON(steps.config.outputs.config).metadata.project_name }}" \
+            -Dsonar.projectVersion="${{ steps.pom-data.outputs.app-version }}" \
+            -Dsonar.branch.name="${{ github.ref_name || steps.default-branch.outputs.DEFAULT_BRANCH }}" \
+            -Dsonar.host.url="https://sonarcloud.io/" \
+            -Dsonar.organization=ptibanez \
+            -Dsonar.login="${LOGIN}" \
+            -Dsonar.coverage.jacoco.xmlReportPaths="$JACOCO_REPORT_PATH"
+          

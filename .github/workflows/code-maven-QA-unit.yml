@@ -113,4 +113,9 @@ jobs:
             -Dsonar.organization=ptibanez \
             -Dsonar.login="${LOGIN}" \
             -Dsonar.coverage.jacoco.xmlReportPaths="$JACOCO_REPORT_PATH"
-          
+      - name: Generate Surefire HTML report
+        if: ${{ always() && !cancelled() }}
+        working-directory: code
+        continue-on-error: true
+        run: |
+          mvn surefire-report:report-only site:site -DoutputName=index -DalwaysGenerateSurefireReport=true -DgenerateReports=false            

@@ -8,14 +8,10 @@ concurrency:
 
 on:
   workflow_dispatch:
-    inputs:
-      ATTACH_TARGET:
-        description: Target platform to upload the generated report, it does not export results if empty. (e.g. azure)
-        required: false
   pull_request:
     types: [closed]
-    branches: ['develop', 'develop-*', 'main', 'main-*']
-    paths: ['code/**', '.github/workflows/code-*-QA_unit.yml']
+    branches: ['develop', 'main']
+    paths: ['code/**', '.github/workflows/code-maven-QA-unit.yml']
   release:
     types:
       - published
